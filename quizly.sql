@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : lun. 27 avr. 2026 à 17:23
+-- Généré le : mar. 28 avr. 2026 à 14:37
 -- Version du serveur : 5.7.24
 -- Version de PHP : 8.3.1
 
@@ -75,9 +75,9 @@ CREATE TABLE `users` (
   `nom` varchar(255) NOT NULL,
   `prenom` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `mdp` varchar(255) DEFAULT NULL,
-  `moyenne_generale` decimal(4,2) DEFAULT '0',
-  `role` tinyint(1) DEFAULT NULL
+  `mdp` varchar(255) NOT NULL,
+  `moyenne_generale` decimal(4,2) NOT NULL,
+  `role` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -134,7 +134,7 @@ ALTER TABLE `tentatives`
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
