@@ -62,7 +62,7 @@ if(isset($_POST['inscription'])){
             <h1>QUIZLY</h1>
             <hr>
             <?php if($message): ?>
-                <div class="alert"><?= $message ?></div>
+                <div class="alert <?= strpos($message, 'réussie') !== false ? 'success' : '' ?>"><?= $message ?></div>
             <?php endif; ?>
             <form action="" method="post">
                 <div style="display:flex; gap:15px;">
