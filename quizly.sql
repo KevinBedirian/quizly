@@ -76,8 +76,8 @@ CREATE TABLE `users` (
   `prenom` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `mdp` varchar(255) NOT NULL,
-  `moyenne_generale` decimal(4,2) NOT NULL,
-  `role` tinyint(1) NOT NULL
+  `moyenne_generale` decimal(4,2) NOT NULL DEFAULT 0.00,
+  `role` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
