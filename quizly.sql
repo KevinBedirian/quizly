@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:3306
--- Généré le : mar. 28 avr. 2026 à 15:38
+-- Généré le : mer. 06 mai 2026 à 11:41
 -- Version du serveur : 5.7.24
 -- Version de PHP : 8.3.1
 
@@ -182,9 +182,16 @@ CREATE TABLE `users` (
   `prenom` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `mdp` varchar(255) NOT NULL,
-  `moyenne_generale` decimal(4,2) NOT NULL,
-  `role` tinyint(1) NOT NULL
+  `moyenne_generale` decimal(4,2) NOT NULL DEFAULT '0.00',
+  `role` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `users`
+--
+
+INSERT INTO `users` (`id`, `nom`, `prenom`, `email`, `mdp`, `moyenne_generale`, `role`) VALUES
+(1, 'Testeur', 'test', 'kevin.bedirian@gmail.com', '$2y$10$oqsHjesCmypb0quFLeEu5ePd2X7qaB8MK1k7YpC9og/wuEFy68pZ2', '0.00', 0);
 
 --
 -- Index pour les tables déchargées
@@ -240,7 +247,7 @@ ALTER TABLE `tentatives`
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
