@@ -24,7 +24,7 @@
         <div class="hero-content">
             <h1>Testez vos connaissances en informatique</h1>
             <p>Bienvenue sur Quizly ! Répondez à des questions variées et testez vos compétences informatiques</p>
-            <button class="btn-primary"><a href="connexion.php" style="color: #667eea; text-decoration: none;">🚀 Commencer une partie</a></button>
+            <button class="btn-primary"><a href="quizly.php" style="color: #667eea; text-decoration: none;">🚀 Commencer une partie</a></button>
         </div>
     </div>
 
