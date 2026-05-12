@@ -316,6 +316,17 @@ $questions_json = json_encode($questions);
         document.addEventListener('contextmenu', (e) => {
             e.preventDefault();
         });
+        //Désactiver la sélection de texte
+        document.addEventListener('selectstart', (e) => {
+            e.preventDefault();
+        }); 
+
+        //Désactiver Ctrl+C, Ctrl+X, Ctrl+V, Ctrl+A
+        document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && ['c', 'x', 'v', 'a'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+        }
+        });
 
         // Initialiser le quiz
         function initQuiz() {
