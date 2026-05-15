@@ -109,6 +109,7 @@ $questions_json = json_encode($questions);
         let correctAnswers = 0;
         let warnings = 0;
         let quizActive = false;
+        let userAnswers = []; // Enregistrer toutes les réponses
         
         let timerInterval;
         let timeLeft = 10;
@@ -200,10 +201,19 @@ $questions_json = json_encode($questions);
 
         function handleAnswer(selectedLetter) {
             const q = questions[currentIdx];
-            if (selectedLetter === q.reponse) {
+            const isCorrect = selectedLetter === q.reponse;
+            
+            if (isCorrect) {
                 correctAnswers++;
                 document.getElementById('score-live').textContent = `Score: ${correctAnswers}`;
             }
+            
+            // Enregistrer la réponse
+            userAnswers.push({
+                question_id: q.id,
+                reponse_utilisateur: selectedLetter || 'AUCUNE',
+                correcte: isCorrect ? 1 : 0
+            });
             
             currentIdx++;
             renderQuestion();
@@ -215,6 +225,8 @@ $questions_json = json_encode($questions);
             document.getElementById('main-content').style.display = 'none';
             document.getElementById('result-screen').style.display = 'flex';
             
+            // Calculer le score final
+            const score = (correctAnswers / 20) * 20; // Score sur 20
             document.getElementById('res-score').textContent = `${correctAnswers}/20`;
             
             let comment = "";
@@ -225,6 +237,38 @@ $questions_json = json_encode($questions);
             document.getElementById('res-msg').textContent = comment;
             
             if (document.exitFullscreen) document.exitFullscreen();
+            
+            // Sauvegarder le quiz en base de données
+            saveQuizToDatabase(score);
+        }
+
+        function saveQuizToDatabase(score) {
+            const payload = {
+                score: score,
+                reponses: userAnswers
+            };
+
+            fetch('save_quiz.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Quiz sauvegardé avec succès ! ID tentative:', data.tentative_id);
+                    // Optionnel : Ajouter un lien vers l'historique
+                    const resultMsg = document.getElementById('res-msg');
+                    resultMsg.innerHTML += '<br><a href="historique.php" style="color: #667eea; font-weight: bold; text-decoration: underline; margin-top: 10px; display: inline-block;">📊 Consulter votre historique</a>';
+                } else {
+                    console.error('Erreur lors de la sauvegarde:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur réseau:', error);
+            });
         }
 
         function forceFailure(reason) {

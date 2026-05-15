@@ -1,3 +1,7 @@
+<?php
+session_start();
+$is_logged_in = isset($_SESSION['id']);
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -15,8 +19,14 @@
     <!-- Menu de navigation -->
     <div class="menu">
         <a href="accueil.php">Accueil</a>
-        <a href="connexion.php">Connexion</a>
-        <a href="inscription.php">Inscription</a>
+        <?php if ($is_logged_in): ?>
+            <a href="quizly.php">🚀 Commencer</a>
+            <a href="historique.php">📊 Mon historique</a>
+            <a href="deconnexion.php">Déconnexion</a>
+        <?php else: ?>
+            <a href="connexion.php">Connexion</a>
+            <a href="inscription.php">Inscription</a>
+        <?php endif; ?>
     </div>
 
     <!-- Section Héro -->
@@ -24,7 +34,11 @@
         <div class="hero-content">
             <h1>Testez vos connaissances en informatique</h1>
             <p>Bienvenue sur Quizly ! Répondez à des questions variées et testez vos compétences informatiques</p>
-            <button class="btn-primary"><a href="quizly.php" style="color: #667eea; text-decoration: none;">🚀 Commencer une partie</a></button>
+            <?php if ($is_logged_in): ?>
+                <button class="btn-primary"><a href="quizly.php" style="color: #667eea; text-decoration: none;">🚀 Commencer une partie</a></button>
+            <?php else: ?>
+                <button class="btn-primary"><a href="connexion.php" style="color: #667eea; text-decoration: none;">🔓 Se connecter</a></button>
+            <?php endif; ?>
         </div>
     </div>
 
