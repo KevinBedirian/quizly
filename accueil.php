@@ -1,6 +1,19 @@
 <?php
 session_start();
+require 'bdd.php';
+
 $is_logged_in = isset($_SESSION['id']);
+$is_admin = false;
+
+if ($is_logged_in) {
+    $query = "SELECT role FROM users WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION['id']);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $user = mysqli_fetch_assoc($result);
+    $is_admin = $user && $user['role'] == 1;
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -22,6 +35,9 @@ $is_logged_in = isset($_SESSION['id']);
         <?php if ($is_logged_in): ?>
             <a href="quizly.php">🚀 Commencer</a>
             <a href="historique.php">📊 Mon historique</a>
+            <?php if ($is_admin): ?>
+                <a href="admin.php" style="background: #667eea; color: white; border-radius: 4px; padding: 8px 16px;">⚙️ Administration</a>
+            <?php endif; ?>
             <a href="deconnexion.php">Déconnexion</a>
         <?php else: ?>
             <a href="connexion.php">Connexion</a>

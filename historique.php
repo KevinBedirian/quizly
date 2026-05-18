@@ -18,7 +18,7 @@ $result = mysqli_stmt_get_result($stmt);
 $tentatives = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
 // Récupérer les infos de l'utilisateur
-$query_user = "SELECT nom, prenom FROM users WHERE id = ?";
+$query_user = "SELECT nom, prenom, moyenne_generale FROM users WHERE id = ?";
 $stmt_user = mysqli_prepare($conn, $query_user);
 mysqli_stmt_bind_param($stmt_user, "i", $user_id);
 mysqli_stmt_execute($stmt_user);
@@ -200,6 +200,37 @@ $user = mysqli_fetch_assoc($result_user);
             margin-top: 20px;
         }
 
+        .stats-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .tentative-card {
                 grid-template-columns: 1fr;
@@ -212,6 +243,15 @@ $user = mysqli_fetch_assoc($result_user);
 
             .btn-details, .btn-primary, .btn-retour {
                 width: 100%;
+            }
+
+            .stats-summary {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+
+            .stat-value {
+                font-size: 28px;
             }
         }
     </style>
@@ -235,6 +275,17 @@ $user = mysqli_fetch_assoc($result_user);
         <div class="historique-header">
             <h1>📊 Historique de vos tentatives</h1>
             <p>Bienvenue <?php echo htmlspecialchars($user['prenom'] . ' ' . $user['nom']); ?></p>
+        </div>
+
+        <div class="stats-summary">
+            <div class="stat-item">
+                <div class="stat-label">📈 Moyenne Générale</div>
+                <div class="stat-value"><?php echo number_format($user['moyenne_generale'], 2); ?>/20</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🎯 Tentatives Totales</div>
+                <div class="stat-value"><?php echo count($tentatives); ?></div>
+            </div>
         </div>
 
         <?php if (empty($tentatives)): ?>

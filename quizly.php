@@ -51,6 +51,202 @@ $questions_json = json_encode($questions);
 
         .progress-bar { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
         #progress-fill { height: 100%; background: #667eea; width: 0%; transition: width 0.3s; }
+
+        /* Styles pour l'écran de résultats détaillés */
+        #result-screen {
+            flex-direction: column;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            padding: 40px 20px !important;
+            overflow-y: auto;
+            background: #f2f6fb !important;
+        }
+
+        .result-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 30px;
+        }
+
+        .result-summary h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .score-box {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .score-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .score-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .results-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .question-result {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #ddd;
+        }
+
+        .question-result.correct {
+            border-left-color: #27ae60;
+            background: #f0fff4;
+        }
+
+        .question-result.incorrect {
+            border-left-color: #e74c3c;
+            background: #fff5f5;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .question-title {
+            flex: 1;
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .result-badge {
+            background: #27ae60;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+
+        .result-badge.incorrect {
+            background: #e74c3c;
+        }
+
+        .answer-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .answer-block {
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .answer-block h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .answer-block p {
+            margin: 0;
+            color: #555;
+        }
+
+        .user-answer {
+            background: #f0f4ff;
+            border-left: 3px solid #667eea;
+        }
+
+        .correct-answer {
+            background: #eafaf1;
+            border-left: 3px solid #27ae60;
+        }
+
+        .action-buttons {
+            width: 100%;
+            max-width: 900px;
+            margin: 30px auto 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-retour {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-retour:hover {
+            background: #1a252f;
+        }
+
+        .btn-historique {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-historique:hover {
+            background: #556ad5;
+        }
+
+        @media (max-width: 768px) {
+            .answer-info {
+                grid-template-columns: 1fr;
+            }
+            
+            #result-screen {
+                padding: 20px !important;
+            }
+            
+            .result-summary {
+                padding: 30px 20px;
+            }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -97,10 +293,31 @@ $questions_json = json_encode($questions);
     </div>
 
     <div id="result-screen" class="warning-overlay" style="display:none;">
-        <h1 id="res-status" style="font-size: 2.5rem;">Quiz Terminé</h1>
-        <div id="res-score" style="font-size: 80px; font-weight: bold; margin: 20px 0; color: #667eea;">0/20</div>
-        <p id="res-msg" style="font-size: 20px; color: #7f8c8d; margin-bottom: 30px;"></p>
-        <a href="accueil.php" class="btn-primary" style="text-decoration: none; padding: 15px 40px; background:#2c3e50; color:white; border-radius:8px;">Retour au Menu</a>
+        <div class="result-summary">
+            <h1 id="res-status" style="color: white;">Quiz Terminé</h1>
+            <div class="score-grid">
+                <div class="score-box">
+                    <div class="score-value" id="res-score">0/20</div>
+                    <div class="score-label">Bonnes réponses</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-value" id="res-percentage">0%</div>
+                    <div class="score-label">Réussite</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-value" id="res-rating">0</div>
+                    <div class="score-label">Score sur 20</div>
+                </div>
+            </div>
+            <p id="res-msg" style="font-size: 18px; margin-top: 20px; margin-bottom: 0;"></p>
+        </div>
+
+        <div class="results-container" id="results-details"></div>
+
+        <div class="action-buttons">
+            <a href="accueil.php" class="btn-retour">🏠 Retour au Menu</a>
+            <a href="historique.php" class="btn-historique">📊 Mon historique</a>
+        </div>
     </div>
 
     <script>
@@ -208,11 +425,17 @@ $questions_json = json_encode($questions);
                 document.getElementById('score-live').textContent = `Score: ${correctAnswers}`;
             }
             
-            // Enregistrer la réponse
+            // Enregistrer la réponse avec tous les détails
             userAnswers.push({
                 question_id: q.id,
                 reponse_utilisateur: selectedLetter || 'AUCUNE',
-                correcte: isCorrect ? 1 : 0
+                correcte: isCorrect ? 1 : 0,
+                intitule: q.intitule,
+                proposition_a: q.proposition_a,
+                proposition_b: q.proposition_b,
+                proposition_c: q.proposition_c,
+                proposition_d: q.proposition_d,
+                reponse_correcte: q.reponse
             });
             
             currentIdx++;
@@ -226,15 +449,24 @@ $questions_json = json_encode($questions);
             document.getElementById('result-screen').style.display = 'flex';
             
             // Calculer le score final
-            const score = (correctAnswers / 20) * 20; // Score sur 20
-            document.getElementById('res-score').textContent = `${correctAnswers}/20`;
+            const totalQuestions = 20;
+            const score = (correctAnswers / totalQuestions) * 20; // Score sur 20
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            document.getElementById('res-score').textContent = `${correctAnswers}/${totalQuestions}`;
+            document.getElementById('res-percentage').textContent = `${percentage}%`;
+            document.getElementById('res-rating').textContent = Math.round(score);
             
             let comment = "";
             if(correctAnswers >= 16) comment = "Expert informatique ! 🏆";
             else if(correctAnswers >= 10) comment = "Bien joué, la moyenne est là ! 👍";
-            else comment = "Il faut encore réviser... 💪";
+            else if(correctAnswers >= 5) comment = "C'est un bon début ! 💪";
+            else comment = "Il faut encore réviser... 📚";
             
             document.getElementById('res-msg').textContent = comment;
+            
+            // Générer les résultats détaillés
+            generateResultsDetails();
             
             if (document.exitFullscreen) document.exitFullscreen();
             
@@ -242,10 +474,62 @@ $questions_json = json_encode($questions);
             saveQuizToDatabase(score);
         }
 
+        function generateResultsDetails() {
+            const container = document.getElementById('results-details');
+            container.innerHTML = '';
+            
+            userAnswers.forEach((answer, index) => {
+                const isCorrect = answer.correcte === 1;
+                const userAnswerLetter = answer.reponse_utilisateur;
+                const correctAnswerLetter = answer.reponse_correcte;
+                
+                const propositions = {
+                    'A': answer.proposition_a,
+                    'B': answer.proposition_b,
+                    'C': answer.proposition_c,
+                    'D': answer.proposition_d
+                };
+                
+                const userAnswerText = userAnswerLetter !== 'AUCUNE' ? propositions[userAnswerLetter] : 'Pas de réponse';
+                const correctAnswerText = propositions[correctAnswerLetter];
+                
+                const resultCard = document.createElement('div');
+                resultCard.className = `question-result ${isCorrect ? 'correct' : 'incorrect'}`;
+                
+                resultCard.innerHTML = `
+                    <div class="question-header">
+                        <h3 class="question-title">Q${index + 1} : ${answer.intitule}</h3>
+                        <span class="result-badge ${isCorrect ? '' : 'incorrect'}">
+                            ${isCorrect ? '✓ CORRECT' : '✗ INCORRECT'}
+                        </span>
+                    </div>
+                    <div class="answer-info">
+                        <div class="answer-block user-answer">
+                            <h4>Votre réponse</h4>
+                            <p><strong>${userAnswerLetter !== 'AUCUNE' ? userAnswerLetter : '-'}.</strong> ${userAnswerText}</p>
+                        </div>
+                        <div class="answer-block correct-answer">
+                            <h4>Bonne réponse</h4>
+                            <p><strong>${correctAnswerLetter}.</strong> ${correctAnswerText}</p>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(resultCard);
+            });
+        }
+
         function saveQuizToDatabase(score) {
+            // Nettoyer les réponses pour ne garder que ce qui est nécessaire en BDD
+            const cleanedAnswers = userAnswers.map(answer => ({
+                question_id: answer.question_id,
+                reponse_utilisateur: answer.reponse_utilisateur,
+                correcte: answer.correcte
+            }));
+
             const payload = {
                 score: score,
-                reponses: userAnswers
+                reponses: cleanedAnswers
             };
 
             fetch('save_quiz.php', {
@@ -259,9 +543,6 @@ $questions_json = json_encode($questions);
             .then(data => {
                 if (data.success) {
                     console.log('Quiz sauvegardé avec succès ! ID tentative:', data.tentative_id);
-                    // Optionnel : Ajouter un lien vers l'historique
-                    const resultMsg = document.getElementById('res-msg');
-                    resultMsg.innerHTML += '<br><a href="historique.php" style="color: #667eea; font-weight: bold; text-decoration: underline; margin-top: 10px; display: inline-block;">📊 Consulter votre historique</a>';
                 } else {
                     console.error('Erreur lors de la sauvegarde:', data.message);
                 }
