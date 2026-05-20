@@ -328,6 +328,9 @@ $questions_json = json_encode($questions);
             <div id="warning-msg" style="display:none; color: #e74c3c; font-weight: bold; margin-bottom: 15px; text-align:center;">
                 ⚠️ DERNIER RAPPEL : Restez en plein écran !
             </div>
+            <p id="warning-counter" style="display:none; color:#e74c3c; font-weight:bold; text-align:center;">
+    Avertissements : 0 / 2
+</p>
 
             <div style="display:flex; justify-content: space-between; margin-bottom: 10px; color: #7f8c8d; font-weight: bold;">
                 <span id="progress-text">Question 1 / 20</span>
@@ -391,7 +394,7 @@ $questions_json = json_encode($questions);
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('main-content').style.display = 'flex';
             quizActive = true;
-            renderQuestion();
+             renderQuestion();
         }
 
         function startTimer() {
@@ -423,6 +426,18 @@ $questions_json = json_encode($questions);
     if (!document.fullscreenElement && quizActive) {
         warnings++;
 
+        if (warnings > 1) {
+    forceFailure("TRICHE DÉTECTÉE : sorties répétées du plein écran.");
+    return;
+}
+
+        document.getElementById('warning-counter').style.display = 'block';
+
+document.getElementById('warning-counter').textContent =
+`Avertissements : ${warnings} / 2`;
+
+   
+
         if (warnings >= 2) {
             forceFailure("TRICHE DÉTECTÉE : sorties répétées du plein écran.");
             return;
@@ -444,9 +459,15 @@ $questions_json = json_encode($questions);
         btnRetour.style.cursor = "pointer";
         btnRetour.style.fontWeight = "bold";
 
+        setTimeout(() => {
+    if (quizActive && !document.fullscreenElement) {
+        forceFailure("TRICHE DÉTECTÉE : vous n'êtes pas revenu en plein écran après l'avertissement.");
+    }
+}, 5000);
+
         btnRetour.onclick = () => {
-            document.documentElement.requestFullscreen();
-            btnRetour.remove();
+             document.documentElement.requestFullscreen();
+             btnRetour.remove();
         };
 
         document.getElementById('quiz-container').prepend(btnRetour);
@@ -458,6 +479,51 @@ $questions_json = json_encode($questions);
                 forceFailure("TRICHE DÉTECTÉE : Changement d'onglet ou fenêtre.");
             }
         });
+
+        // Blocage clic droit
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// Blocage copier/coller
+document.addEventListener('copy', function(e) {
+    e.preventDefault();
+});
+
+document.addEventListener('paste', function(e) {
+    e.preventDefault();
+});
+
+// Blocage raccourcis clavier
+document.addEventListener('keydown', function(e) {
+
+
+
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+    }
+
+    // Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+        e.preventDefault();
+    }
+
+    // Ctrl+U
+    if (e.ctrlKey && e.key === 'u') {
+        e.preventDefault();
+    }
+
+    // Ctrl+C
+    if (e.ctrlKey && e.key === 'c') {
+        e.preventDefault();
+    }
+
+    // Ctrl+V
+    if (e.ctrlKey && e.key === 'v') {
+        e.preventDefault();
+    }
+});
 
         // --- LOGIQUE ---
         function renderQuestion() {
