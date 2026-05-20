@@ -1,0 +1,101 @@
+[33mcommit eeb777b0e088d2cf42d43ed89256b7908bddb98d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Wed May 20 08:55:57 2026 +0200
+
+    Add: Catégories, difficultés
+
+[33mcommit 8371587060b4899ffc2971ac635c9b7891a49438[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Mon May 18 20:17:29 2026 +0200
+
+    Ajout: Administration, moyenne generale, résultats à la fin de tentative
+
+[33mcommit b84d531b5302fd653489ee6e0031975f66497f0d[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Fri May 15 18:45:26 2026 +0200
+
+    Ajout de l'historique et du détail de l'historique
+
+[33mcommit 5ca208de06b2c3974227b352a0dfefb88c1ed2f2[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Fri May 15 18:36:27 2026 +0200
+
+    Fix de la BDD et anti-cheat fullscreen 2 warns
+
+[33mcommit d451ab53be9a000af584d721ba5f74484a05743d[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Fri May 15 16:16:10 2026 +0200
+
+    Ajout du deuxième CDC et renommer le premier
+
+[33mcommit bc616cee886864781917034275fae5272286515e[m
+Author: Amyas05 <amyopps05@gmail.com>
+Date:   Tue May 12 17:21:23 2026 +0200
+
+    desactivation select et raccourcis clavier
+
+[33mcommit ae766414e998f167127f406babac090d85705741[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Mon May 11 17:55:05 2026 +0200
+
+    v1 du quiz
+
+[33mcommit cc217f31739c7fbf9e4d65b5c55d7d354d412c63[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Mon May 11 17:38:19 2026 +0200
+
+    Ajout de la page d'accueil
+
+[33mcommit 69e36cfea7ad82d575f026a46a00c250b9e6435f[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Wed May 6 13:42:42 2026 +0200
+
+    Fix, BDD valeurs par défaut
+
+[33mcommit a52fef261d60d344e46e49679cba00883a035fae[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Tue Apr 28 17:50:09 2026 +0200
+
+    Ajout des questions dans la table questions de la BDD
+
+[33mcommit 708ca68f14a7d23f5db23de3c2d2a561d411fca1[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Tue Apr 28 17:16:28 2026 +0200
+
+    Fix BDD users: valeur par défaut rôle et moyenne
+
+[33mcommit 5d7ccdd7ea0caa98d061d6f247b70b9153ef241a[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Tue Apr 28 16:43:53 2026 +0200
+
+    Fix bug BDD (NULL)
+
+[33mcommit fc83d6df002bcad77ec85743db610df484bcf4c5[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Tue Apr 28 16:30:48 2026 +0200
+
+    Ajout connexion.php + Changement couleur inscription réussie
+
+[33mcommit de838078cc05bfd8076b145df2f65db6adaff148[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Tue Apr 28 16:13:53 2026 +0200
+
+    Ajout deconnexion
+
+[33mcommit ae49783c59f66839d2a67dadacecb9457c639d60[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Mon Apr 27 20:00:41 2026 +0200
+
+    Inscription.php + CSS
+
+[33mcommit 0c61c5a8ef21cfef02f67dd401d19c852be36fe5[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Mon Apr 27 19:34:56 2026 +0200
+
+    Ajout du cahier des charges
+
+[33mcommit cb3575c34cb053c2b615fdf35352440b00fa8bfa[m
+Author: BEDIRIAN Kevin <k.bedir@outlook.fr>
+Date:   Mon Apr 27 19:31:12 2026 +0200
+
+    Ajout de la BDD et sa connexion

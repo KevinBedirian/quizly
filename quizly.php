@@ -420,16 +420,38 @@ $questions_json = json_encode($questions);
 
         // --- ANTI-TRICHE ---
         document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement && quizActive) {
-                warnings++;
-                if (warnings === 1) {
-                    alert("ATTENTION ! Ne quittez pas le plein écran. Prochaine fois, c'est le 0/20 immédiat.");
-                    document.getElementById('warning-msg').style.display = 'block';
-                } else {
-                    forceFailure("TRICHE DÉTECTÉE : Sorties répétées du mode sécurisé.");
-                }
-            }
-        });
+    if (!document.fullscreenElement && quizActive) {
+        warnings++;
+
+        if (warnings >= 2) {
+            forceFailure("TRICHE DÉTECTÉE : sorties répétées du plein écran.");
+            return;
+        }
+
+        alert("ATTENTION ! Vous devez rester en plein écran pendant toute la durée du quiz. Toute nouvelle sortie sera considérée comme une tentative de triche et entraînera automatiquement un 0/20.");
+
+        document.getElementById('warning-msg').style.display = 'block';
+
+        const btnRetour = document.createElement('button');
+        btnRetour.textContent = "Revenir en plein écran";
+        btnRetour.style.margin = "15px auto";
+        btnRetour.style.display = "block";
+        btnRetour.style.padding = "12px 25px";
+        btnRetour.style.background = "#e74c3c";
+        btnRetour.style.color = "white";
+        btnRetour.style.border = "none";
+        btnRetour.style.borderRadius = "8px";
+        btnRetour.style.cursor = "pointer";
+        btnRetour.style.fontWeight = "bold";
+
+        btnRetour.onclick = () => {
+            document.documentElement.requestFullscreen();
+            btnRetour.remove();
+        };
+
+        document.getElementById('quiz-container').prepend(btnRetour);
+    }
+});
 
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && quizActive) {
