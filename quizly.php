@@ -7,14 +7,66 @@ if (!isset($_SESSION['id'])) {
     exit;
 }
 
-// Récupération de 20 questions aléatoires (puisées dans tes 100 questions SQL)
-$query = "SELECT * FROM questions ORDER BY RAND() LIMIT 20";
+// Récupération des catégories et difficultés sélectionnées
+$categories = [];
+if (isset($_POST['categories'])) {
+    // Si c'est un array, le garder; sinon, le convertir en array
+    $categories = is_array($_POST['categories']) ? $_POST['categories'] : [$_POST['categories']];
+    // Convertir les valeurs en entiers
+    $categories = array_map('intval', $categories);
+}
+
+$difficultes_par_categorie = [];
+
+if (empty($categories)) {
+    // Si aucune catégorie n'est fournie, rediriger vers l'accueil
+    header('Location: accueil.php');
+    exit;
+}
+
+// Construire le tableau des difficultés pour chaque catégorie
+// Avec les selects, une seule difficulté par catégorie
+foreach ($categories as $cat_id) {
+    $difficulte_key = 'difficulte_' . $cat_id;
+    
+    if (isset($_POST[$difficulte_key]) && $_POST[$difficulte_key] !== '') {
+        $difficulte = (int)$_POST[$difficulte_key];
+        // Convertir le niveau en incluant les niveaux inférieurs
+        // Par exemple: niveau 2 = [1, 2], niveau 3 = [1, 2, 3]
+        $diff_list = [];
+        for ($i = 1; $i <= $difficulte; $i++) {
+            $diff_list[] = $i;
+        }
+        $difficultes_par_categorie[$cat_id] = $diff_list;
+    }
+}
+
+// Vérifier qu'il y a au moins une difficulté pour chaque catégorie
+foreach ($categories as $cat_id) {
+    if (!isset($difficultes_par_categorie[$cat_id]) || empty($difficultes_par_categorie[$cat_id])) {
+        header('Location: accueil.php');
+        exit;
+    }
+}
+
+// Construire la requête SQL dynamique
+$conditions = [];
+
+foreach ($categories as $cat_id) {
+    $diff_list = $difficultes_par_categorie[$cat_id];
+    $diff_str = implode(',', $diff_list);
+    
+    $conditions[] = "(id_categorie = $cat_id AND difficulte IN ($diff_str))";
+}
+
+$where_clause = implode(' OR ', $conditions);
+$query = "SELECT * FROM questions WHERE $where_clause ORDER BY RAND() LIMIT 20";
+
 $result = mysqli_query($conn, $query);
 $questions = [];
 
 while ($row = mysqli_fetch_assoc($result)) {
-    // PROTECTION : On convertit les caractères spéciaux HTML pour éviter que 
-    // des balises comme <script> ne cassent le JSON ou l'affichage.
+    // PROTECTION : On convertit les caractères spéciaux HTML
     $row['intitule'] = htmlspecialchars($row['intitule'], ENT_QUOTES, 'UTF-8');
     $row['proposition_a'] = htmlspecialchars($row['proposition_a'], ENT_QUOTES, 'UTF-8');
     $row['proposition_b'] = htmlspecialchars($row['proposition_b'], ENT_QUOTES, 'UTF-8');
