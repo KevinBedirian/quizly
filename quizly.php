@@ -60,7 +60,16 @@ foreach ($categories as $cat_id) {
 }
 
 $where_clause = implode(' OR ', $conditions);
-$query = "SELECT * FROM questions WHERE $where_clause ORDER BY RAND() LIMIT 20";
+
+// D'abord, compter le nombre de questions réelles disponibles
+$count_query = "SELECT COUNT(*) as total FROM questions WHERE $where_clause";
+$count_result = mysqli_query($conn, $count_query);
+$count_row = mysqli_fetch_assoc($count_result);
+$total_questions = $count_row['total'];
+
+// Limiter à 20 maximum, mais utiliser le nombre réel disponible
+$limit = min(20, $total_questions);
+$query = "SELECT * FROM questions WHERE $where_clause ORDER BY RAND() LIMIT $limit";
 
 $result = mysqli_query($conn, $query);
 $questions = [];
@@ -76,6 +85,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $questions[] = $row;
 }
 $questions_json = json_encode($questions);
+$total_questions_real = count($questions);
 ?>
 
 <!DOCTYPE html>
@@ -308,10 +318,10 @@ $questions_json = json_encode($questions);
         <div style="max-width: 500px; text-align: left; background: #fff3f3; padding: 25px; border-radius: 8px; border-left: 5px solid #e74c3c; margin: 20px 0;">
             <p><strong>⚡ Paramètres de la session :</strong></p>
             <ul>
-                <li>Nombre de questions : <strong>20</strong></li>
+                <li>Nombre de questions : <strong><?php echo $total_questions_real; ?></strong></li>
                 <li>Temps par question : <strong>10 secondes</strong></li>
                 <li>Plein écran : <strong>Obligatoire</strong></li>
-                <li><strong>Anti-triche :</strong> 1 avertissement max, sinon 0/20.</li>
+                <li><strong>Anti-triche :</strong> 1 avertissement max, sinon 0/<?php echo $total_questions_real; ?>.</li>
             </ul>
         </div>
         <button onclick="launchSecureQuiz()" class="btn-primary" style="padding: 15px 45px; font-size: 1.1rem; cursor: pointer; background:#667eea; color:white; border:none; border-radius:8px; font-weight: bold;">
@@ -377,6 +387,7 @@ $questions_json = json_encode($questions);
 
     <script>
         const questions = <?php echo $questions_json; ?>;
+        const totalQuestionsReal = <?php echo $total_questions_real; ?>;
         let currentIdx = 0;
         let correctAnswers = 0;
         let warnings = 0;
@@ -589,7 +600,7 @@ document.addEventListener('keydown', function(e) {
             document.getElementById('result-screen').style.display = 'flex';
             
             // Calculer le score final
-            const totalQuestions = 20;
+            const totalQuestions = totalQuestionsReal;
             const score = (correctAnswers / totalQuestions) * 20; // Score sur 20
             const percentage = Math.round((correctAnswers / totalQuestions) * 100);
             
@@ -598,9 +609,9 @@ document.addEventListener('keydown', function(e) {
             document.getElementById('res-rating').textContent = Math.round(score);
             
             let comment = "";
-            if(correctAnswers >= 16) comment = "Expert informatique ! 🏆";
-            else if(correctAnswers >= 10) comment = "Bien joué, la moyenne est là ! 👍";
-            else if(correctAnswers >= 5) comment = "C'est un bon début ! 💪";
+            if(correctAnswers >= totalQuestions * 0.8) comment = "Expert informatique ! 🏆";
+            else if(correctAnswers >= totalQuestions * 0.5) comment = "Bien joué, la moyenne est là ! 👍";
+            else if(correctAnswers >= totalQuestions * 0.25) comment = "C'est un bon début ! 💪";
             else comment = "Il faut encore réviser... 📚";
             
             document.getElementById('res-msg').textContent = comment;
@@ -700,7 +711,7 @@ document.addEventListener('keydown', function(e) {
             
             document.getElementById('res-status').textContent = "EXAMEN ANNULÉ ❌";
             document.getElementById('res-status').style.color = "red";
-            document.getElementById('res-score').textContent = "00/20";
+            document.getElementById('res-score').textContent = `00/${totalQuestionsReal}`;
             document.getElementById('res-score').style.color = "red";
             document.getElementById('res-msg').textContent = reason;
             

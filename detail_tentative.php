@@ -56,6 +56,9 @@ $correct_count = 0;
 foreach ($reponses as $rep) {
     if ($rep['correcte']) $correct_count++;
 }
+
+// Nombre total de questions de cette tentative
+$total_reponses = count($reponses);
 ?>
 
 <!DOCTYPE html>
