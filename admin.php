@@ -383,6 +383,10 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
             color: #7f8c8d;
         }
 
+        .filter-bar .form-group {
+            margin-bottom: 0;
+        }
+
         .question-actions {
             display: flex;
             gap: 10px;
@@ -562,8 +566,8 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
 
         <!-- Onglets -->
         <div class="tab-buttons">
-            <button class="tab-btn active" onclick="switchTab('questions')">📝 Gérer les Questions</button>
-            <button class="tab-btn" onclick="switchTab('users')">👥 Gérer les Utilisateurs</button>
+            <button class="tab-btn active" onclick="switchTab(event, 'questions')">📝 Gérer les Questions</button>
+            <button class="tab-btn" onclick="switchTab(event, 'users')">👥 Gérer les Utilisateurs</button>
         </div>
 
         <!-- TAB 1: Questions -->
@@ -572,10 +576,35 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
             
             <button class="btn-submit" onclick="openQuestionModal()">➕ Ajouter une question</button>
 
+            <div class="filter-bar" style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="filter-category">Filtrer par catégorie</label>
+                    <select id="filter-category" onchange="filterQuestions()">
+                        <option value="">Toutes les catégories</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo $cat['id']; ?>"><?php echo htmlspecialchars($cat['nom']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="filter-difficulty">Filtrer par difficulté</label>
+                    <select id="filter-difficulty" onchange="filterQuestions()">
+                        <option value="">Toutes les difficultés</option>
+                        <option value="1">Facile</option>
+                        <option value="2">Moyen</option>
+                        <option value="3">Difficile</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" class="btn-secondary" onclick="resetQuestionFilters()" style="width: 100%;">Réinitialiser les filtres</button>
+                </div>
+            </div>
+            <div id="filter-count" style="margin-top: 15px; color: #2c3e50; font-weight: 600;">Chargement du nombre de questions...</div>
+
             <div style="margin-top: 30px;">
                 <div class="questions-list" id="questions-list">
                     <?php foreach ($questions as $q): ?>
-                        <div class="question-item" id="question-<?php echo $q['id']; ?>">
+                        <div class="question-item" id="question-<?php echo $q['id']; ?>" data-category-id="<?php echo $q['id_categorie']; ?>" data-difficulty="<?php echo $q['difficulte']; ?>">
                             <div class="question-info">
                                 <div class="question-text"><?php echo htmlspecialchars($q['intitule']); ?></div>
                                 <div class="question-meta">
@@ -710,7 +739,7 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
     <script>
         let currentEditingQuestionId = null;
 
-        function switchTab(tabName) {
+        function switchTab(event, tabName) {
             // Masquer tous les onglets
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -850,12 +879,57 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
             alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
         }
 
+        function filterQuestions() {
+            const categoryFilter = document.getElementById('filter-category').value;
+            const difficultyFilter = document.getElementById('filter-difficulty').value;
+            const questions = document.querySelectorAll('.question-item');
+
+            questions.forEach(question => {
+                const itemCategory = question.dataset.categoryId || '';
+                const itemDifficulty = question.dataset.difficulty || '';
+
+                const matchesCategory = categoryFilter === '' || itemCategory === categoryFilter;
+                const matchesDifficulty = difficultyFilter === '' || itemDifficulty === difficultyFilter;
+
+                question.style.display = matchesCategory && matchesDifficulty ? 'flex' : 'none';
+            });
+
+            updateFilterCount();
+        }
+
+        function resetQuestionFilters() {
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-difficulty').value = '';
+            filterQuestions();
+        }
+
+        function updateFilterCount() {
+            const questions = Array.from(document.querySelectorAll('.question-item'));
+            const visibleCount = questions.filter(q => q.style.display !== 'none').length;
+            const totalCount = questions.length;
+            const categoryLabel = document.getElementById('filter-category').selectedOptions[0].textContent;
+            const difficultyLabel = document.getElementById('filter-difficulty').selectedOptions[0].textContent;
+            const activeFilters = [];
+
+            if (document.getElementById('filter-category').value !== '') {
+                activeFilters.push(`Catégorie : ${categoryLabel}`);
+            }
+            if (document.getElementById('filter-difficulty').value !== '') {
+                activeFilters.push(`Difficulté : ${difficultyLabel}`);
+            }
+
+            const filterText = activeFilters.length ? ` (${activeFilters.join(' / ')})` : '';
+            document.getElementById('filter-count').textContent = `${visibleCount} question(s) affichée(s) sur ${totalCount}${filterText}`;
+        }
+
         // Fermer le modal en cliquant en dehors
         document.getElementById('question-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeQuestionModal();
             }
         });
+
+        updateFilterCount();
     </script>
 </body>
 </html>
