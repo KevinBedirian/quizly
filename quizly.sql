@@ -56,6 +56,7 @@ CREATE TABLE `tentatives` (
   `utilisateur_id` int(11) NOT NULL,
   `score` float NOT NULL,
   `date_passage` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `motif` varchar(255) DEFAULT NULL COMMENT 'Motif du 0 en cas de triche (ex: TRICHE - Sortie fullscreen)',
   PRIMARY KEY (`id`),
   KEY `fk_user` (`utilisateur_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -231,6 +231,17 @@ $user = mysqli_fetch_assoc($result_user);
             font-weight: bold;
         }
 
+        .cheat-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
         @media (max-width: 768px) {
             .tentative-card {
                 grid-template-columns: 1fr;
@@ -316,8 +327,15 @@ $user = mysqli_fetch_assoc($result_user);
                             <span class="tentative-value"><?php echo $time_fr; ?></span>
                         </div>
                         
-                        <div class="score-badge <?php echo $score_class; ?>">
-                            <?php echo number_format($score, 2); ?>/20
+                        <div>
+                            <div class="score-badge <?php echo $score_class; ?>">
+                                <?php echo number_format($score, 2); ?>/20
+                            </div>
+                            <?php if ($tentative['motif']): ?>
+                                <div class="cheat-badge">
+                                    ⚠️ <?php echo htmlspecialchars($tentative['motif']); ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         
                         <a href="detail_tentative.php?id=<?php echo $tentative['id']; ?>" class="btn-details">

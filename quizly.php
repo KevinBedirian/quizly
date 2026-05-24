@@ -505,36 +505,18 @@ document.addEventListener('paste', function(e) {
     e.preventDefault();
 });
 
-// Blocage raccourcis clavier
-document.addEventListener('keydown', function(e) {
-
-
-
-    // F12
-    if (e.key === "F12") {
-        e.preventDefault();
+// Blocage de toute utilisation du clavier pendant le quiz
+function blockKeyboard(e) {
+    if (!quizActive) {
+        return;
     }
+    e.preventDefault();
+    e.stopPropagation();
+}
 
-    // Ctrl+Shift+I
-    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
-        e.preventDefault();
-    }
-
-    // Ctrl+U
-    if (e.ctrlKey && e.key === 'u') {
-        e.preventDefault();
-    }
-
-    // Ctrl+C
-    if (e.ctrlKey && e.key === 'c') {
-        e.preventDefault();
-    }
-
-    // Ctrl+V
-    if (e.ctrlKey && e.key === 'v') {
-        e.preventDefault();
-    }
-});
+document.addEventListener('keydown', blockKeyboard);
+document.addEventListener('keypress', blockKeyboard);
+document.addEventListener('keyup', blockKeyboard);
 
         // --- LOGIQUE ---
         function renderQuestion() {
@@ -670,7 +652,7 @@ document.addEventListener('keydown', function(e) {
             });
         }
 
-        function saveQuizToDatabase(score) {
+        function saveQuizToDatabase(score, motif = null) {
             // Nettoyer les réponses pour ne garder que ce qui est nécessaire en BDD
             const cleanedAnswers = userAnswers.map(answer => ({
                 question_id: answer.question_id,
@@ -680,7 +662,8 @@ document.addEventListener('keydown', function(e) {
 
             const payload = {
                 score: score,
-                reponses: cleanedAnswers
+                reponses: cleanedAnswers,
+                motif: motif
             };
 
             fetch('save_quiz.php', {
@@ -716,6 +699,7 @@ document.addEventListener('keydown', function(e) {
             document.getElementById('res-msg').textContent = reason;
             
             if (document.exitFullscreen) document.exitFullscreen();
+            saveQuizToDatabase(0, reason);
         }
     </script>
 </body>

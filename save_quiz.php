@@ -28,20 +28,21 @@ if (!$data || !isset($data['reponses']) || !isset($data['score'])) {
 $user_id = $_SESSION['id'];
 $score = floatval($data['score']);
 $reponses = $data['reponses'];
+$motif = isset($data['motif']) ? $data['motif'] : NULL;
 
 // Démarrer une transaction
 mysqli_begin_transaction($conn);
 
 try {
     // 1. Créer une nouvelle tentative
-    $query = "INSERT INTO tentatives (utilisateur_id, score, date_passage) VALUES (?, ?, NOW())";
+    $query = "INSERT INTO tentatives (utilisateur_id, score, date_passage, motif) VALUES (?, ?, NOW(), ?)";
     $stmt = mysqli_prepare($conn, $query);
     
     if (!$stmt) {
         throw new Exception("Erreur de préparation : " . mysqli_error($conn));
     }
     
-    mysqli_stmt_bind_param($stmt, "id", $user_id, $score);
+    mysqli_stmt_bind_param($stmt, "ids", $user_id, $score, $motif);
     
     if (!mysqli_stmt_execute($stmt)) {
         throw new Exception("Erreur d'exécution : " . mysqli_stmt_error($stmt));
