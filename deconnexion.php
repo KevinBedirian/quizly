@@ -15,7 +15,7 @@ session_destroy();
             <h1>À bientôt.</h1>
             <hr>
             <p style="color:var(--text-muted);">Déconnexion sécurisée en cours...</p>
-            <?php header("refresh:2;url=affichage.php"); ?>
+            <?php header("refresh:2;url=accueil.php"); ?>
         </div>
     </div>
 </body>

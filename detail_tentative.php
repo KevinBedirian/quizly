@@ -15,10 +15,29 @@ if (!isset($_GET['id'])) {
 $tentative_id = intval($_GET['id']);
 $user_id = $_SESSION['id'];
 
-// Vérifier que la tentative appartient à l'utilisateur
-$query = "SELECT * FROM tentatives WHERE id = ? AND utilisateur_id = ?";
+// Récupérer le rôle de l'utilisateur
+$query = "SELECT role FROM users WHERE id = ?";
 $stmt = mysqli_prepare($conn, $query);
-mysqli_stmt_bind_param($stmt, "ii", $tentative_id, $user_id);
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$current_user = mysqli_fetch_assoc($result);
+
+if (!$current_user) {
+    header('Location: connexion.php');
+    exit;
+}
+
+if ($current_user['role'] == 1) {
+    $query = "SELECT t.*, u.nom, u.prenom FROM tentatives t JOIN users u ON t.utilisateur_id = u.id WHERE t.id = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $tentative_id);
+} else {
+    $query = "SELECT t.*, u.nom, u.prenom FROM tentatives t JOIN users u ON t.utilisateur_id = u.id WHERE t.id = ? AND t.utilisateur_id = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "ii", $tentative_id, $user_id);
+}
+
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 $tentative = mysqli_fetch_assoc($result);
@@ -303,7 +322,7 @@ $total_reponses = count($reponses);
     <!-- Contenu principal -->
     <div class="detail-container">
         <div class="detail-header">
-            <h1>📋 Détail de votre tentative</h1>
+            <h1>📋 Détail de la tentative</h1>
             <p><?php 
                 $datetime = new DateTime($tentative['date_passage']);
                 echo 'Quiz du ' . $datetime->format('d/m/Y à H:i:s'); 

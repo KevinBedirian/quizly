@@ -144,6 +144,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
             echo json_encode(['success' => false, 'error' => mysqli_stmt_error($stmt)]);
         }
     }
+
+    elseif ($action === 'delete_tentative') {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        $query = "DELETE FROM tentatives WHERE id = ?";
+        $stmt = mysqli_prepare($conn, $query);
+        mysqli_stmt_bind_param($stmt, "i", $data['tentative_id']);
+
+        if (mysqli_stmt_execute($stmt)) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'error' => mysqli_stmt_error($stmt)]);
+        }
+    }
     
     exit;
 }
@@ -156,6 +170,9 @@ $questions = mysqli_fetch_all(mysqli_query($conn, "SELECT q.*, c.nom as categori
 
 // Récupérer les utilisateurs
 $users = mysqli_fetch_all(mysqli_query($conn, "SELECT * FROM users ORDER BY id"), MYSQLI_ASSOC);
+
+// Récupérer les tentatives
+$tentatives = mysqli_fetch_all(mysqli_query($conn, "SELECT t.*, u.nom, u.prenom, u.email FROM tentatives t JOIN users u ON t.utilisateur_id = u.id ORDER BY t.date_passage DESC"), MYSQLI_ASSOC);
 
 // Récupérer les stats
 $stats_query = "SELECT COUNT(*) as total_users FROM users";
@@ -568,6 +585,7 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
         <div class="tab-buttons">
             <button class="tab-btn active" onclick="switchTab(event, 'questions')">📝 Gérer les Questions</button>
             <button class="tab-btn" onclick="switchTab(event, 'users')">👥 Gérer les Utilisateurs</button>
+            <button class="tab-btn" onclick="switchTab(event, 'attempts')">🎯 Gérer les Tentatives</button>
         </div>
 
         <!-- TAB 1: Questions -->
@@ -660,6 +678,45 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- TAB 3: Tentatives -->
+        <div id="attempts" class="tab-content">
+            <div class="section-title">🎯 Gestion des Tentatives</div>
+            <?php if (empty($tentatives)): ?>
+                <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center;">
+                    <h2>Aucune tentative enregistrée.</h2>
+                    <p>Les tentatives des utilisateurs apparaîtront ici.</p>
+                </div>
+            <?php else: ?>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Email</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                            <th>Motif</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($tentatives as $t): ?>
+                            <tr id="tentative-<?php echo $t['id']; ?>">
+                                <td><?php echo htmlspecialchars($t['prenom'] . ' ' . $t['nom']); ?></td>
+                                <td><?php echo htmlspecialchars($t['email']); ?></td>
+                                <td><?php echo number_format($t['score'], 2); ?>/20</td>
+                                <td><?php echo date('d/m/Y H:i', strtotime($t['date_passage'])); ?></td>
+                                <td><?php echo htmlspecialchars($t['motif'] ?: '-'); ?></td>
+                                <td>
+                                    <a class="btn-secondary" href="detail_tentative.php?id=<?php echo $t['id']; ?>">Voir</a>
+                                    <button class="btn-danger" onclick="deleteTentative(<?php echo $t['id']; ?>)">Supprimer</button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -867,6 +924,30 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
             .then(data => {
                 if (data.success) {
                     location.reload();
+                } else {
+                    alert('Erreur : ' + (data.error || 'Erreur inconnue'));
+                }
+            })
+            .catch(error => alert('Erreur réseau : ' + error));
+        }
+
+        function deleteTentative(tentativeId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette tentative ?')) {
+                return;
+            }
+
+            fetch(`admin.php?action=delete_tentative`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tentative_id: tentativeId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const row = document.getElementById('tentative-' + tentativeId);
+                    if (row) row.remove();
                 } else {
                     alert('Erreur : ' + (data.error || 'Erreur inconnue'));
                 }
