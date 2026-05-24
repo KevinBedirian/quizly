@@ -347,6 +347,11 @@ $user = mysqli_fetch_assoc($result_user);
         <?php endif; ?>
 
         <div class="header-buttons">
+
+        <a href="export_notes.php" class="btn-historique">
+            📥 Exporter mes notes CSV
+        </a>
+
             <a href="accueil.php" class="btn-retour">← Retour au menu</a>
         </div>
     </div>
