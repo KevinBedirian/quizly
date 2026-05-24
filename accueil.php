@@ -76,7 +76,7 @@ if ($is_logged_in) {
     <div class="menu">
         <a href="accueil.php">Accueil</a>
         <?php if ($is_logged_in): ?>
-            <a href="quizly.php">🚀 Commencer</a>
+            <a href="#" id="menu-start">🚀 Commencer</a>
             <a href="historique.php">📊 Mon historique</a>
             <?php if ($is_admin): ?>
                 <a href="admin.php" style="background: #667eea; color: white; border-radius: 4px; padding: 8px 16px;">⚙️ Administration</a>
@@ -108,8 +108,9 @@ if ($is_logged_in) {
     </div>
 
     <!-- Modal de sélection des catégories et difficultés -->
-    <div id="quiz-selection-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 40px; border-radius: 12px; max-width: 700px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+    <div id="quiz-selection-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+        <div style="background: white; padding: 40px; border-radius: 12px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2); box-sizing: border-box; position: relative;">
+            <button type="button" onclick="closeQuizSelectionModal()" style="position: absolute; top: 16px; right: 16px; width: 34px; height: 34px; border: none; background: rgba(15,23,42,0.08); color: #111827; font-size: 18px; font-weight: 700; border-radius: 999px; cursor: pointer;">×</button>
             <h2 style="color: #2c3e50; margin-bottom: 10px; text-align: center;">Configurez votre Quiz</h2>
             <p style="color: #666; text-align: center; margin-bottom: 30px;">Sélectionnez 1 à 3 catégories et choisissez un niveau pour chacune.</p>
             
@@ -257,10 +258,25 @@ if ($is_logged_in) {
     <script>
         // Afficher le modal au clic du bouton "Commencer"
         const btnStart = document.getElementById('btn-start');
+        const menuStart = document.getElementById('menu-start');
+
+        function openQuizSelectionModal() {
+            document.getElementById('quiz-selection-modal').style.display = 'flex';
+        }
+
         if (btnStart) {
-            btnStart.addEventListener('click', function() {
-                document.getElementById('quiz-selection-modal').style.display = 'flex';
+            btnStart.addEventListener('click', openQuizSelectionModal);
+        }
+
+        if (menuStart) {
+            menuStart.addEventListener('click', function(event) {
+                event.preventDefault();
+                openQuizSelectionModal();
             });
+        }
+
+        function closeQuizSelectionModal() {
+            document.getElementById('quiz-selection-modal').style.display = 'none';
         }
 
         // Gestion des selects de difficulté
