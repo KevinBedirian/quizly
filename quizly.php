@@ -7,6 +7,48 @@ if (!isset($_SESSION['id'])) {
     exit;
 }
 
+function getUserDifficultyUnlocks($user_id, $conn) {
+    $unlocked = [
+        1 => ['medium' => false, 'hard' => false],
+        2 => ['medium' => false, 'hard' => false],
+        3 => ['medium' => false, 'hard' => false],
+    ];
+
+    $query = "SELECT MIN(q.id_categorie) AS categorie_id, MAX(q.difficulte) AS max_difficulte
+              FROM tentatives t
+              JOIN reponses r ON r.tentative_id = t.id
+              JOIN questions q ON q.id = r.question_id
+              WHERE t.utilisateur_id = ? AND t.score >= 10
+              GROUP BY t.id
+              HAVING COUNT(DISTINCT q.id_categorie) = 1";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $cat_id = (int)$row['categorie_id'];
+        $max_difficulte = (int)$row['max_difficulte'];
+
+        if (!isset($unlocked[$cat_id])) {
+            continue;
+        }
+
+        if ($max_difficulte >= 1) {
+            $unlocked[$cat_id]['medium'] = true;
+        }
+        if ($max_difficulte >= 2) {
+            $unlocked[$cat_id]['hard'] = true;
+        }
+        if ($max_difficulte >= 3) {
+            $unlocked[$cat_id]['medium'] = true;
+            $unlocked[$cat_id]['hard'] = true;
+        }
+    }
+
+    return $unlocked;
+}
+
 // Récupération des catégories et difficultés sélectionnées
 $categories = [];
 if (isset($_POST['categories'])) {
@@ -26,11 +68,24 @@ if (empty($categories)) {
 
 // Construire le tableau des difficultés pour chaque catégorie
 // Avec les selects, une seule difficulté par catégorie
+$unlocked = getUserDifficultyUnlocks($_SESSION['id'], $conn);
+
 foreach ($categories as $cat_id) {
     $difficulte_key = 'difficulte_' . $cat_id;
     
     if (isset($_POST[$difficulte_key]) && $_POST[$difficulte_key] !== '') {
         $difficulte = (int)$_POST[$difficulte_key];
+
+        if ($difficulte === 2 && !$unlocked[$cat_id]['medium']) {
+            header('Location: accueil.php?error=niveau_non_autorise');
+            exit;
+        }
+
+        if ($difficulte === 3 && !$unlocked[$cat_id]['hard']) {
+            header('Location: accueil.php?error=niveau_non_autorise');
+            exit;
+        }
+
         // Convertir le niveau en incluant les niveaux inférieurs
         // Par exemple: niveau 2 = [1, 2], niveau 3 = [1, 2, 3]
         $diff_list = [];

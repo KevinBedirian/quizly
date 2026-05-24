@@ -13,6 +13,49 @@ if ($is_logged_in) {
     $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
     $is_admin = $user && $user['role'] == 1;
+
+    $unlocked = [
+        1 => ['medium' => false, 'hard' => false],
+        2 => ['medium' => false, 'hard' => false],
+        3 => ['medium' => false, 'hard' => false],
+    ];
+
+    $query = "SELECT MIN(q.id_categorie) AS categorie_id, MAX(q.difficulte) AS max_difficulte
+              FROM tentatives t
+              JOIN reponses r ON r.tentative_id = t.id
+              JOIN questions q ON q.id = r.question_id
+              WHERE t.utilisateur_id = ? AND t.score >= 10
+              GROUP BY t.id
+              HAVING COUNT(DISTINCT q.id_categorie) = 1";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION['id']);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $cat_id = (int)$row['categorie_id'];
+        $max_difficulte = (int)$row['max_difficulte'];
+        if (!isset($unlocked[$cat_id])) {
+            continue;
+        }
+
+        if ($max_difficulte >= 1) {
+            $unlocked[$cat_id]['medium'] = true;
+        }
+        if ($max_difficulte >= 2) {
+            $unlocked[$cat_id]['hard'] = true;
+        }
+        if ($max_difficulte >= 3) {
+            $unlocked[$cat_id]['medium'] = true;
+            $unlocked[$cat_id]['hard'] = true;
+        }
+    }
+} else {
+    $unlocked = [
+        1 => ['medium' => false, 'hard' => false],
+        2 => ['medium' => false, 'hard' => false],
+        3 => ['medium' => false, 'hard' => false],
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -44,6 +87,12 @@ if ($is_logged_in) {
             <a href="inscription.php">Inscription</a>
         <?php endif; ?>
     </div>
+
+    <?php if (isset($_GET['error']) && $_GET['error'] === 'niveau_non_autorise'): ?>
+        <div style="max-width: 900px; margin: 20px auto; padding: 15px 20px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 8px;">
+            ⚠️ Niveau non autorisé : vous devez d'abord obtenir au moins 10/20 au niveau précédent pour débloquer ce niveau.
+        </div>
+    <?php endif; ?>
 
     <!-- Section Héro -->
     <div class="hero">
@@ -77,9 +126,15 @@ if ($is_logged_in) {
                         <select name="difficulte_1" class="difficulty-select" data-category="1" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
                             <option value="">-- Sélectionner --</option>
                             <option value="1">🟢 Débutant</option>
-                            <option value="2">🟡 Intermédiaire</option>
-                            <option value="3">🔴 Avancé</option>
+                            <option value="2"<?php echo !$unlocked[1]['medium'] ? ' disabled' : ''; ?>>🟡 Intermédiaire</option>
+                            <option value="3"<?php echo !$unlocked[1]['hard'] ? ' disabled' : ''; ?>>🔴 Avancé</option>
                         </select>
+                        <?php if (!$unlocked[1]['medium']): ?>
+                            <p style="margin-top: 8px; color: #d35400; font-size: 13px;">Intermédiaire requiert 10/20 en Débutant.</p>
+                        <?php endif; ?>
+                        <?php if (!$unlocked[1]['hard']): ?>
+                            <p style="margin-top: 8px; color: #c0392b; font-size: 13px;">Avancé requiert 10/20 en Intermédiaire.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -94,9 +149,15 @@ if ($is_logged_in) {
                         <select name="difficulte_2" class="difficulty-select" data-category="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
                             <option value="">-- Sélectionner --</option>
                             <option value="1">🟢 Débutant</option>
-                            <option value="2">🟡 Intermédiaire</option>
-                            <option value="3">🔴 Avancé</option>
+                            <option value="2"<?php echo !$unlocked[2]['medium'] ? ' disabled' : ''; ?>>🟡 Intermédiaire</option>
+                            <option value="3"<?php echo !$unlocked[2]['hard'] ? ' disabled' : ''; ?>>🔴 Avancé</option>
                         </select>
+                        <?php if (!$unlocked[2]['medium']): ?>
+                            <p style="margin-top: 8px; color: #d35400; font-size: 13px;">Intermédiaire requiert 10/20 en Débutant.</p>
+                        <?php endif; ?>
+                        <?php if (!$unlocked[2]['hard']): ?>
+                            <p style="margin-top: 8px; color: #c0392b; font-size: 13px;">Avancé requiert 10/20 en Intermédiaire.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -111,9 +172,15 @@ if ($is_logged_in) {
                         <select name="difficulte_3" class="difficulty-select" data-category="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 14px;">
                             <option value="">-- Sélectionner --</option>
                             <option value="1">🟢 Débutant</option>
-                            <option value="2">🟡 Intermédiaire</option>
-                            <option value="3">🔴 Avancé</option>
+                            <option value="2"<?php echo !$unlocked[3]['medium'] ? ' disabled' : ''; ?>>🟡 Intermédiaire</option>
+                            <option value="3"<?php echo !$unlocked[3]['hard'] ? ' disabled' : ''; ?>>🔴 Avancé</option>
                         </select>
+                        <?php if (!$unlocked[3]['medium']): ?>
+                            <p style="margin-top: 8px; color: #d35400; font-size: 13px;">Intermédiaire requiert 10/20 en Débutant.</p>
+                        <?php endif; ?>
+                        <?php if (!$unlocked[3]['hard']): ?>
+                            <p style="margin-top: 8px; color: #c0392b; font-size: 13px;">Avancé requiert 10/20 en Intermédiaire.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
 
