@@ -21,6 +21,43 @@ if (!$user || $user['role'] != 1) {
     header('Location: accueil.php');
     exit;
 }
+if (isset($_POST['import_csv'])) {
+
+    if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] == 0) {
+
+        $file = fopen($_FILES['csv_file']['tmp_name'], 'r');
+
+        fgetcsv($file, 1000, ';');
+
+        while (($data = fgetcsv($file, 1000, ';')) !== FALSE) {
+
+            $id_categorie = intval($data[0]);
+            $intitule = mysqli_real_escape_string($conn, $data[1]);
+
+            $a = mysqli_real_escape_string($conn, $data[2]);
+            $b = mysqli_real_escape_string($conn, $data[3]);
+            $c = mysqli_real_escape_string($conn, $data[4]);
+            $d = mysqli_real_escape_string($conn, $data[5]);
+
+            $reponse = mysqli_real_escape_string($conn, $data[6]);
+
+            $difficulte = intval($data[7]);
+
+            $query = "
+                INSERT INTO questions
+                (id_categorie, intitule, proposition_a, proposition_b, proposition_c, proposition_d, reponse, difficulte)
+                VALUES
+                ('$id_categorie', '$intitule', '$a', '$b', '$c', '$d', '$reponse', '$difficulte')
+            ";
+
+            mysqli_query($conn, $query);
+        }
+
+        fclose($file);
+
+        $success_message = "Import CSV réussi.";
+    }
+}
 
 // Traiter les requêtes AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
@@ -183,6 +220,14 @@ $stats_questions = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
 
 $stats_query = "SELECT COUNT(*) as total_tentatives FROM tentatives";
 $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
+$stats_query = "SELECT COUNT(*) as total_triches FROM tentatives WHERE motif IS NOT NULL AND motif != ''";
+$stats_triches = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
+
+$stats_query = "SELECT AVG(score) as moyenne_globale FROM tentatives";
+$stats_moyenne = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
+
+$stats_query = "SELECT MAX(score) as meilleur_score FROM tentatives";
+$stats_meilleur = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
 ?>
 
 <!DOCTYPE html>
@@ -579,6 +624,33 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
                 <div class="stat-value"><?php echo $stats_tentatives['total_tentatives']; ?></div>
                 <div class="stat-label">Tentatives totales</div>
             </div>
+
+            <div class="stat-card">
+    <div class="stat-value">
+        <?php echo $stats_triches['total_triches']; ?>
+    </div>
+    <div class="stat-label">
+        🚨 Triches détectées
+    </div>
+</div>
+
+<div class="stat-card">
+    <div class="stat-value">
+        <?php echo round($stats_moyenne['moyenne_globale'], 1); ?>
+    </div>
+    <div class="stat-label">
+        📊 Moyenne globale
+    </div>
+</div>
+
+<div class="stat-card">
+    <div class="stat-value">
+        <?php echo $stats_meilleur['meilleur_score']; ?>
+    </div>
+    <div class="stat-label">
+        🏆 Meilleur score
+    </div>
+</div>
         </div>
 
         <!-- Onglets -->
@@ -593,6 +665,16 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
             <div class="section-title">📝 Gestion des Questions</div>
             
             <button class="btn-submit" onclick="openQuestionModal()">➕ Ajouter une question</button>
+
+            <form action="" method="POST" enctype="multipart/form-data" style="margin-top:20px;">
+    
+    <input type="file" name="csv_file" accept=".csv" required>
+
+    <button type="submit" name="import_csv" class="btn-submit">
+        📥 Importer un CSV
+    </button>
+
+</form>
 
             <div class="filter-bar" style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; align-items: end;">
                 <div class="form-group" style="margin-bottom: 0;">
