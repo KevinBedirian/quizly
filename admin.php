@@ -795,6 +795,7 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
 
     <script>
         let currentEditingQuestionId = null;
+        const questionsData = <?php echo json_encode($questions); ?>;
 
         function switchTab(event, tabName) {
             // Masquer tous les onglets
@@ -820,13 +821,36 @@ $stats_tentatives = mysqli_fetch_assoc(mysqli_query($conn, $stats_query));
         }
 
         function editQuestion(questionId) {
-            // Récupérer les données de la question via AJAX (vous pouvez aussi les récupérer PHP côté)
-            // Pour simplifier, on récupère les données du DOM
-            currentEditingQuestionId = questionId;
-            document.getElementById('modal-title').textContent = 'Modifier la question';
-            document.getElementById('question-modal').classList.add('active');
-            // TODO: Charger les données de la question dans le formulaire
-        }
+
+    const question = questionsData.find(
+        q => parseInt(q.id) === parseInt(questionId)
+    );
+
+    if (!question) {
+        alert("Question introuvable.");
+        return;
+    }
+
+    currentEditingQuestionId = questionId;
+
+    document.getElementById('modal-title').textContent = 'Modifier la question';
+
+    document.getElementById('question-category').value = question.id_categorie;
+    document.getElementById('question-difficulty').value = question.difficulte;
+
+    document.getElementById('question-text').value = question.intitule;
+
+    document.getElementById('option-a').value = question.proposition_a;
+    document.getElementById('option-b').value = question.proposition_b;
+    document.getElementById('option-c').value = question.proposition_c;
+    document.getElementById('option-d').value = question.proposition_d;
+
+    document.getElementById('correct-answer').value = question.reponse;
+
+    document.getElementById('form-alerts').innerHTML = '';
+
+    document.getElementById('question-modal').classList.add('active');
+}
 
         function saveQuestion() {
             const formData = {

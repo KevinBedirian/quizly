@@ -153,7 +153,9 @@ $total_questions_real = count($questions);
         #quiz-container { background: white; padding: 30px; border-radius: 12px; max-width: 800px; width: 90%; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .option-btn { display: block; width: 100%; margin: 10px 0; padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: left; background: white; font-size: 16px; transition: 0.2s; }
         .option-btn:hover { border-color: #667eea; background: #f0f4ff; }
-        
+      * {
+    user-select: none;
+}  
         /* Style du minuteur */
         .timer-wrapper { position: absolute; top: -15px; right: 20px; background: #e74c3c; color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-size: 1.2rem; z-index: 10; }
         .timer-low { animation: blink 0.5s infinite; background: #c0392b; }
