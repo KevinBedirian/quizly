@@ -265,6 +265,23 @@ $user = mysqli_fetch_assoc($result_user);
                 font-size: 28px;
             }
         }
+
+        /* Conteneur compact pour le graphique */
+        .chart-wrapper {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+            height: 220px; /* hauteur compacte */
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .chart-wrapper canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
     </style>
 </head>
 <body>
@@ -299,6 +316,30 @@ $user = mysqli_fetch_assoc($result_user);
             </div>
         </div>
 
+        <?php
+        // Préparer les données pour le graphique des scores et des triches
+        $chart_labels = [];
+        $chart_scores = [];
+        $cheat_counts = [];
+        foreach ($tentatives as $t) {
+            $dt = new DateTime($t['date_passage']);
+            $chart_labels[] = $dt->format('d/m/Y H:i');
+            $chart_scores[] = (float) $t['score'];
+
+            // Compter les triches par jour (si 'motif' est présent)
+            $day = $dt->format('d/m/Y');
+            if (!isset($cheat_counts[$day])) {
+                $cheat_counts[$day] = 0;
+            }
+            if (!empty($t['motif'])) {
+                $cheat_counts[$day]++;
+            }
+        }
+        // Préparer tableaux pour JS
+        $cheat_labels = array_keys($cheat_counts);
+        $cheat_values = array_values($cheat_counts);
+        ?>
+
         <?php if (empty($tentatives)): ?>
             <div class="empty-message">
                 <h2>Aucune tentative pour le moment</h2>
@@ -306,6 +347,16 @@ $user = mysqli_fetch_assoc($result_user);
                 <a href="quizly.php" class="btn-primary">🚀 Commencer un quiz</a>
             </div>
         <?php else: ?>
+            <!-- Graphique des scores -->
+            <div class="chart-wrapper">
+                <h3 style="margin-top:0;">Historique des scores</h3>
+                <canvas id="scoresChart"></canvas>
+            </div>
+
+            <div class="chart-wrapper">
+                <h3 style="margin-top:0;">Nombre de triches par jour</h3>
+                <canvas id="cheatsChart"></canvas>
+            </div>
             <div class="tentatives-list">
                 <?php foreach ($tentatives as $tentative): 
                     $score = $tentative['score'];
@@ -360,5 +411,76 @@ $user = mysqli_fetch_assoc($result_user);
     <footer class="footer">
         <p>&copy; 2026 Quizly - Quiz Informatique. Tous droits réservés.</p>
     </footer>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function(){
+            const labels = <?php echo json_encode($chart_labels, JSON_UNESCAPED_UNICODE); ?>;
+            const scores = <?php echo json_encode($chart_scores); ?>;
+
+            // Si on veut afficher dans l'ordre chronologique (anciennes -> récentes)
+            const reversedLabels = labels.slice().reverse();
+            const reversedScores = scores.slice().reverse();
+
+            const ctx = document.getElementById('scoresChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: reversedLabels,
+                    datasets: [{
+                        label: 'Score (/20)',
+                        data: reversedScores,
+                        borderColor: 'rgba(102,126,234,0.9)',
+                        backgroundColor: 'rgba(102,126,234,0.15)',
+                        tension: 0.25,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgba(118,75,162,0.9)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            suggestedMin: 0,
+                            suggestedMax: 20
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            // Graphique des triches (barres)
+            const cheatLabels = <?php echo json_encode($cheat_labels, JSON_UNESCAPED_UNICODE); ?>;
+            const cheatCounts = <?php echo json_encode($cheat_values); ?>;
+            const reversedCheatLabels = cheatLabels.slice().reverse();
+            const reversedCheatCounts = cheatCounts.slice().reverse();
+            const ctx2 = document.getElementById('cheatsChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: reversedCheatLabels,
+                    datasets: [{
+                        label: 'Triches',
+                        data: reversedCheatCounts,
+                        backgroundColor: 'rgba(231,76,60,0.9)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            precision: 0
+                        }
+                    },
+                    plugins: { legend: { display: false } },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
